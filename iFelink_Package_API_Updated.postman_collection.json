@@ -1,0 +1,453 @@
+{
+    "info": {
+        "_postman_id": "dc2cb246-b7cd-4079-86b3-37c73047b3c3",
+        "name": "iFelink - Package API (With Auth & File Upload)",
+        "description": "Collection untuk testing API iFelink dengan Authentication, File Upload, dan Protected Routes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "1. Register User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"auth_token\", jsonData.data.access_token);",
+                                    "    pm.collectionVariables.set(\"auth_token\", jsonData.data.access_token);",
+                                    "    console.log('Token saved: ' + jsonData.data.access_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+                        },
+                        "url": "http://localhost:8000/api/auth/register",
+                        "description": "Register user baru dan otomatis simpan token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "2. Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"auth_token\", jsonData.data.access_token);",
+                                    "    pm.collectionVariables.set(\"auth_token\", jsonData.data.access_token);",
+                                    "    console.log('Token saved: ' + jsonData.data.access_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": "http://localhost:8000/api/auth/login",
+                        "description": "Login user dan otomatis simpan token ke variable"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3. Get User Profile (Me)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": "http://localhost:8000/api/auth/me",
+                        "description": "Get info user yang sedang login (requires Bearer token)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "4. Logout User",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "url": "http://localhost:8000/api/auth/logout",
+                        "description": "Logout user dan hapus token (requires Bearer token)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints untuk authentication: register, login, logout, dan get profile"
+        },
+        {
+            "name": "Packages - Public",
+            "item": [
+                {
+                    "name": "1. Get All Packages",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8000/api/packages?limit=10&page=1",
+                            "protocol": "http",
+                            "host": ["localhost"],
+                            "port": "8000",
+                            "path": ["api", "packages"],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Jumlah data per halaman"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Halaman ke berapa"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Cari berdasarkan nama atau provider",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "orderBy",
+                                    "value": "id",
+                                    "description": "Urutkan berdasarkan kolom",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "asc",
+                                    "description": "asc atau desc",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Get semua packages dengan pagination (PUBLIC - no auth required)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "2. Get All Packages (Search)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8000/api/packages?limit=10&search=Internet&orderBy=price&sortBy=asc",
+                            "protocol": "http",
+                            "host": ["localhost"],
+                            "port": "8000",
+                            "path": ["api", "packages"],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "Internet"
+                                },
+                                {
+                                    "key": "orderBy",
+                                    "value": "price"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "asc"
+                                }
+                            ]
+                        },
+                        "description": "Get packages dengan search dan sorting (PUBLIC)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3. Get Package Detail (by ID)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8000/api/packages/1",
+                            "protocol": "http",
+                            "host": ["localhost"],
+                            "port": "8000",
+                            "path": ["api", "packages", "1"]
+                        },
+                        "description": "Get detail satu package berdasarkan ID (PUBLIC)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Public endpoints - tidak memerlukan authentication"
+        },
+        {
+            "name": "Packages - Protected (Requires Auth Token)",
+            "item": [
+                {
+                    "name": "1. Create Package (JSON - No File)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Paket Internet 50GB Premium\",\n  \"provider\": \"Telkomsel\",\n  \"quota\": \"50GB\",\n  \"price\": 250000,\n  \"validity_days\": 30,\n  \"description\": \"Paket internet premium 50GB valid 30 hari\",\n  \"is_active\": true\n}"
+                        },
+                        "url": "http://localhost:8000/api/packages",
+                        "description": "Create package baru tanpa file upload (AUTH REQUIRED)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "2. Create Package (With File Upload)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "name",
+                                    "value": "Paket Internet 30GB",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "provider",
+                                    "value": "Indosat",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "quota",
+                                    "value": "30GB",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price",
+                                    "value": "150000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "validity_days",
+                                    "value": "30",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Paket internet 30GB dengan gambar",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "is_active",
+                                    "value": "true",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": "http://localhost:8000/api/packages",
+                        "description": "Create package dengan file upload (AUTH REQUIRED) - File max 5MB (jpg,jpeg,png,pdf,doc,docx)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3. Update Package (JSON - No File)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Paket Internet 50GB Updated\",\n  \"price\": 260000,\n  \"description\": \"Paket internet premium 50GB - Updated\"\n}"
+                        },
+                        "url": "http://localhost:8000/api/packages/1",
+                        "description": "Update package tanpa file upload (AUTH REQUIRED) - Ganti ID package sesuai kebutuhan"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "4. Update Package (With File Upload)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "_method",
+                                    "value": "PUT",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Paket Internet 30GB Updated",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price",
+                                    "value": "155000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Paket internet 30GB updated dengan gambar baru",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": "http://localhost:8000/api/packages/1",
+                        "description": "Update package dengan file upload (AUTH REQUIRED) - Gunakan POST dengan _method=PUT, ganti ID package"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "5. Delete Package",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [],
+                        "url": "http://localhost:8000/api/packages/1",
+                        "description": "Delete package berdasarkan ID (AUTH REQUIRED) - Ganti ID package sesuai kebutuhan"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Protected endpoints - memerlukan Bearer token authentication"
+        }
+    ],
+    "variable": [
+        {
+            "key": "auth_token",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

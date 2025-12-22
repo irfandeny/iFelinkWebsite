@@ -1,0 +1,248 @@
+### iFelink - Package API Testing
+### API untuk Penjualan Pulsa & Paket Data
+### With Authentication & File Upload Support
+
+@baseUrl = http://localhost:8000/api
+@token = YOUR_TOKEN_HERE
+
+###
+###========================================
+### AUTHENTICATION ENDPOINTS
+###========================================
+
+### 1. REGISTER NEW USER
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+
+###
+### 2. LOGIN USER
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+###
+### 3. GET CURRENT USER INFO (ME)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+###
+### 4. LOGOUT USER
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+###
+###========================================
+### PACKAGE ENDPOINTS (PUBLIC)
+###========================================
+
+### 5. GET ALL PACKAGES (dengan pagination & search)
+### Query params: limit, page, search, orderBy, sortBy
+GET {{baseUrl}}/packages?limit=10&page=1&search=&orderBy=id&sortBy=asc
+Accept: application/json
+
+###
+### 5a. GET ALL PACKAGES (search by name, sorted by price)
+GET {{baseUrl}}/packages?limit=5&page=1&search=Internet&orderBy=price&sortBy=asc
+Accept: application/json
+
+###
+### 5b. GET ALL PACKAGES (search by provider)
+GET {{baseUrl}}/packages?limit=10&page=1&search=Telkomsel&orderBy=name&sortBy=desc
+Accept: application/json
+
+###
+### 6. GET PACKAGE DETAIL (by ID)
+GET {{baseUrl}}/packages/1
+Accept: application/json
+
+###
+### 6a. GET PACKAGE DETAIL (ID 5)
+GET {{baseUrl}}/packages/5
+Accept: application/json
+
+###
+###========================================
+### PACKAGE ENDPOINTS (PROTECTED - AUTH REQUIRED)
+###========================================
+
+### 7. CREATE NEW PACKAGE (with JSON - no file)
+POST {{baseUrl}}/packages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Paket Internet 50GB Premium",
+  "provider": "Telkomsel",
+  "quota": "50GB",
+  "price": 250000,
+  "validity_days": 30,
+  "description": "Paket internet premium 50GB valid 30 hari dengan kecepatan tinggi",
+  "is_active": true
+}
+
+###
+### 7a. CREATE NEW PACKAGE WITH FILE UPLOAD
+### Note: Use Postman for file upload testing
+### This endpoint requires multipart/form-data
+### Fields: name, provider, quota, price, validity_days, description, is_active, image
+
+###
+### 8. CREATE NEW PACKAGE (Indosat)
+POST {{baseUrl}}/packages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Paket Hemat Indosat 15GB",
+  "provider": "Indosat",
+  "quota": "15GB",
+  "price": 85000,
+  "validity_days": 7,
+  "description": "Paket hemat mingguan dari Indosat",
+  "is_active": true
+}
+
+###
+### 9. CREATE NEW PULSA (Telkomsel)
+POST {{baseUrl}}/packages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Pulsa Telkomsel 50K",
+  "provider": "Telkomsel",
+  "quota": "50000",
+  "price": 50000,
+  "validity_days": 30,
+  "description": "Pulsa Telkomsel nominal 50000 rupiah",
+  "is_active": true
+}
+
+###
+### 10. UPDATE PACKAGE (by ID - no file)
+PUT {{baseUrl}}/packages/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Paket Internet 10GB Updated",
+  "provider": "Telkomsel",
+  "quota": "10GB",
+  "price": 80000,
+  "validity_days": 30,
+  "description": "Paket internet 10GB updated - valid 30 hari",
+  "is_active": true
+}
+
+###
+### 10a. UPDATE PACKAGE WITH FILE UPLOAD
+### Note: Use Postman for file upload testing
+### This endpoint requires multipart/form-data
+### Can update any field including image
+
+###
+### 11. UPDATE PACKAGE PRICE ONLY (by ID)
+PUT {{baseUrl}}/packages/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "price": 95000
+}
+
+###
+### 12. DELETE PACKAGE (by ID)
+DELETE {{baseUrl}}/packages/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### 12a. DELETE PACKAGE (another ID)
+DELETE {{baseUrl}}/packages/2
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+###========================================
+### NOTES:
+###========================================
+### 1. After login, copy the access_token and replace {{token}} variable above
+### 2. For file upload endpoints (7a, 10a), use Postman with form-data
+### 3. Public endpoints (5, 6) don't require Authorization header
+### 4. Protected endpoints (7-12) require: Authorization: Bearer {token}
+### 5. File validation: max 5MB, types: jpg,jpeg,png,pdf,doc,docx
+
+###
+### 3c. CREATE NEW PULSA (Indosat)
+POST {{baseUrl}}/packages
+Content-Type: application/json
+
+{
+  "name": "Pulsa Indosat 25K",
+  "provider": "Indosat",
+  "quota": "25000",
+  "price": 25000,
+  "validity_days": 30,
+  "description": "Pulsa Indosat nominal 25000 rupiah",
+  "is_active": true
+}
+
+###
+### 3d. CREATE NEW PULSA (XL)
+POST {{baseUrl}}/packages
+Content-Type: application/json
+
+{
+  "name": "Pulsa XL 30K",
+  "provider": "XL",
+  "quota": "30000",
+  "price": 30000,
+  "validity_days": 30,
+  "description": "Pulsa XL nominal 30000 rupiah",
+  "is_active": true
+}
+
+###
+### 4. UPDATE PACKAGE (by ID)
+PUT {{baseUrl}}/packages/1
+Content-Type: application/json
+
+{
+  "name": "Paket Internet 10GB Updated",
+  "provider": "Telkomsel",
+  "quota": "10GB",
+  "price": 80000,
+  "validity_days": 30,
+  "description": "Paket internet 10GB updated - valid 30 hari",
+  "is_active": true
+}
+
+###
+### 4a. UPDATE PACKAGE PRICE (by ID)
+PUT {{baseUrl}}/packages/2
+Content-Type: application/json
+
+{
+  "price": 95000
+}
+
+###
+### 5. DELETE PACKAGE (by ID)
+DELETE {{baseUrl}}/packages/12
+Accept: application/json
+
+###
+### 5a. DELETE PACKAGE (ID 11)
+DELETE {{baseUrl}}/packages/11
+Accept: application/json

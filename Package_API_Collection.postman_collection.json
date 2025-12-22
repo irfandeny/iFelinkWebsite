@@ -1,0 +1,173 @@
+{
+    "info": {
+        "_postman_id": "12345678-1234-1234-1234-123456789012",
+        "name": "iFelink - Package API",
+        "description": "Collection untuk testing API iFelink (Penjualan Pulsa & Paket Data) dengan 5 endpoint utama",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Get All Packages (Pagination & Search)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/api/packages?limit=10&page=1&search=&orderBy=id&sortBy=asc",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages"],
+                    "query": [
+                        {
+                            "key": "limit",
+                            "value": "10",
+                            "description": "Jumlah data per halaman"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1",
+                            "description": "Halaman ke berapa"
+                        },
+                        {
+                            "key": "search",
+                            "value": "",
+                            "description": "Cari berdasarkan nama atau provider"
+                        },
+                        {
+                            "key": "orderBy",
+                            "value": "id",
+                            "description": "Urutkan berdasarkan kolom"
+                        },
+                        {
+                            "key": "sortBy",
+                            "value": "asc",
+                            "description": "asc atau desc"
+                        }
+                    ]
+                },
+                "description": "Get semua packages dengan pagination, search, dan sorting"
+            },
+            "response": []
+        },
+        {
+            "name": "1a. Get All Packages (Search by Name)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/api/packages?limit=10&page=1&search=Internet&orderBy=price&sortBy=asc",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages"],
+                    "query": [
+                        {
+                            "key": "limit",
+                            "value": "10"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "search",
+                            "value": "Internet"
+                        },
+                        {
+                            "key": "orderBy",
+                            "value": "price"
+                        },
+                        {
+                            "key": "sortBy",
+                            "value": "asc"
+                        }
+                    ]
+                },
+                "description": "Get packages dengan filter search dan sorting by price"
+            },
+            "response": []
+        },
+        {
+            "name": "2. Get Package Detail (by ID)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/api/packages/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages", "1"]
+                },
+                "description": "Get detail satu package berdasarkan ID"
+            },
+            "response": []
+        },
+        {
+            "name": "3. Create New Package",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"Paket Internet 50GB\",\n  \"provider\": \"Telkomsel\",\n  \"quota\": \"50GB\",\n  \"price\": 250000,\n  \"validity_days\": 30,\n  \"description\": \"Paket internet premium 50GB valid 30 hari\",\n  \"is_active\": true\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8000/api/packages",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages"]
+                },
+                "description": "Create package baru"
+            },
+            "response": []
+        },
+        {
+            "name": "4. Update Package (by ID)",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"Paket Internet 50GB Updated\",\n  \"provider\": \"Telkomsel\",\n  \"quota\": \"50GB\",\n  \"price\": 260000,\n  \"validity_days\": 30,\n  \"description\": \"Paket internet premium 50GB valid 30 hari - Updated\",\n  \"is_active\": true\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8000/api/packages/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages", "1"]
+                },
+                "description": "Update package berdasarkan ID"
+            },
+            "response": []
+        },
+        {
+            "name": "5. Delete Package (by ID)",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8000/api/packages/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8000",
+                    "path": ["api", "packages", "1"]
+                },
+                "description": "Delete package berdasarkan ID"
+            },
+            "response": []
+        }
+    ]
+}
