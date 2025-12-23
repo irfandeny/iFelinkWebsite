@@ -13,6 +13,7 @@ class Package extends Model
         'name',
         'slug',
         'provider',
+        'type',
         'quota',
         'price',
         'validity_days',
@@ -23,6 +24,7 @@ class Package extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'validity_days' => 'integer',
         'is_active' => 'boolean',
     ];
 
@@ -45,5 +47,47 @@ class Package extends Model
             $slug = $original . '-' . $count++;
         }
         return $slug;
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeProvider($query, $provider)
+    {
+        return $query->where('provider', $provider);
+    }
+
+    public function scopeType($query, $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    public function getProviderNameAttribute()
+    {
+        $providers = [
+            'Telkomsel' => 'Telkomsel',
+            'Indosat' => 'Indosat Ooredoo',
+            'XL' => 'XL Axiata',
+            'Tri' => '3 (Tri)',
+            'Smartfren' => 'Smartfren',
+            'Axis' => 'Axis',
+        ];
+        return $providers[$this->provider] ?? ucfirst($this->provider);
+    }
+
+    public function isAvailable(){
+        return $this -> is_active == true;
     }
 }

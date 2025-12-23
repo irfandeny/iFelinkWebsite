@@ -90,20 +90,34 @@ class PackageController extends Controller
     }
 
     //
-    public function show(string $id)
+    public function show($slug)
     {
-        $package = Package::find($id);
+        try {
+            // Cari by slug, jika tidak ketemu cari by id
+            $package = Package::where('slug', $slug)
+                ->orWhere('id', $slug)
+                ->first();
 
-        if (!$package){
+            if (!$package) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Package not found',
+                ], 404);
+            }
+
             return response()->json([
-                'message' => 'Package not found'
-            ], 404);
-        }
+                'success' => true,
+                'message' => 'Package retrieved successfully',
+                'data' => $package
+            ], 200);
 
-        return response() ->json([
-            'message' => 'Success get package',
-            'data' => $package
-        ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve package',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, string $id)

@@ -12,7 +12,9 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    //register
+    /**
+     * Register new user
+     */
     public function register(Request $request)
     {
         try {
@@ -26,95 +28,166 @@ class AuthController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'role' => 'user', // TAMBAHKAN ini - default role user
             ]);
 
+            // Auto login setelah register & generate token
+            $token = Auth::login($user);
+
             return response()->json([
+                'success' => true,
                 'message' => 'User registered successfully',
                 'data' => [
-                    'user' => $user,
+                    'user' => [
+                        'id' => $user->id,
+                        'uuid' => $user->uuid,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                    ],
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
                 ]
             ], 201);
+
         } catch (ValidationException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation error',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Registration failed',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    //login
+    /**
+     * Login user
+     */
     public function login(Request $request)
     {
         try {
-            $request->validate([
+            $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
 
-            $user = User::where('email', $request->email)->first();
-
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            // Attempt login dengan JWT
+            if (!$token = Auth::attempt($credentials)) {
                 return response()->json([
-                    'message' => 'Credentials invalid',
+                    'success' => false,
+                    'message' => 'Invalid credentials',
                     'error' => 'Email or password incorrect',
                 ], 401);
             }
 
-            //buat token bila kredensial benar
-            if (! $token = Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                return response()->json([
-                    'message' => 'Login failed',
-                    'error' => 'Could not generate token',
-                ], 401);
-            }
+            // Get authenticated user
+            $user = Auth::user();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Login successful',
                 'data' => [
-                    'user' => $user,
+                    'user' => [
+                        'id' => $user->id,
+                        'uuid' => $user->uuid,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                    ],
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                 ]
             ], 200);
+
         } catch (ValidationException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation error',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Login failed',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    //logout
+    /**
+     * Logout user
+     */
     public function logout(Request $request)
     {
         try {
             Auth::logout();
+
             return response()->json([
+                'success' => true,
                 'message' => 'Logout successful'
-            ]);
+            ], 200);
+
         } catch (JWTException $e) {
             return response()->json([
-                'message' => 'Logout failed'
+                'success' => false,
+                'message' => 'Logout failed',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
-    //get authenticated user info
+    /**
+     * Get authenticated user profile
+     */
     public function me(Request $request)
     {
+        $user = Auth::user();
+
         return response()->json([
+            'success' => true,
             'message' => 'Success get user profile',
-            'data' => Auth::user()
-        ]);
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'uuid' => $user->uuid,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'email_verified_at' => $user->email_verified_at,
+                    'created_at' => $user->created_at,
+                ]
+            ]
+        ], 200);
+    }
+
+    /**
+     * Refresh JWT token
+     */
+    public function refresh()
+    {
+        try {
+            $newToken = Auth::refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token refreshed successfully',
+                'data' => [
+                    'access_token' => $newToken,
+                    'token_type' => 'Bearer',
+                ]
+            ], 200);
+
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token refresh failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
